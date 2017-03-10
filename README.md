@@ -10,8 +10,10 @@ MediaPlayer as a Service. Simplify MediaPlayer integration.
 2. Open AndroidStudio
 3. File->New->Import Module...
 4. Set source directory to `library` directory of this repository
-5. Set module name
+5. Set module name to `playerservice`
 6. Finish
+7. Add `compile project(':playerservice')` to dependencies block in your app module's build.gradle
+8. Sync now
 
 ### API
 

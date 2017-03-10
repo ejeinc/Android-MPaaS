@@ -4,6 +4,17 @@ MediaPlayer as a Service. Simplify MediaPlayer integration.
 
 ## How to use
 
+### Import
+
+1. Clone repository
+2. Open AndroidStudio
+3. File->New->Import Module...
+4. Set source directory to `library` directory of this repository
+5. Set module name
+6. Finish
+
+### API
+
 Bind to `PlayerService`
 
 ```java

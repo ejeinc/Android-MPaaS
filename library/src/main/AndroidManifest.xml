@@ -1,5 +1,8 @@
-<manifest package="com.eje_c.playerservice">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.eje_c.playerservice">
 
-    <application></application>
+    <application>
+        <service android:name=".PlayerService" />
+    </application>
 
 </manifest>

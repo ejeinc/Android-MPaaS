@@ -20,8 +20,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Declare PlayerService -->
-        <service android:name="com.eje_c.playerservice.PlayerService" />
     </application>
 
 </manifest>

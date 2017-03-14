@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.eje_c.playerservice.BufferingListener;
+import com.eje_c.playerservice.OnExceptionListener;
 import com.eje_c.playerservice.Player;
 import com.eje_c.playerservice.PlayerService;
 
@@ -22,6 +23,16 @@ public class MainActivity extends Activity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "onServiceConnected: " + name);
+
+            Player player = PlayerService.getPlayer();
+            if (player != null) {
+                player.onException(new OnExceptionListener() {
+                    @Override
+                    public void onException(Exception e) {
+                        Log.e(TAG, "onException: ", e);
+                    }
+                });
+            }
         }
 
         @Override

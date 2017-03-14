@@ -108,4 +108,11 @@ public interface Player {
      * @param bufferingListener the callback that will be run.
      */
     void setBufferingListener(BufferingListener bufferingListener);
+
+    /**
+     * Register a callback to be invoked when an error has happened during an asynchronous operation.
+     *
+     * @param listener the callback that will be run.
+     */
+    void onException(OnExceptionListener listener);
 }

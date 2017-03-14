@@ -35,6 +35,7 @@ class ExoPlayerImpl implements Player, ExoPlayer.EventListener {
     private boolean buffering;
     private BufferingListener bufferingListener;
     private Runnable onEndCallback;
+    private OnExceptionListener onExceptionListener;
 
     ExoPlayerImpl(Context context) {
 
@@ -133,6 +134,11 @@ class ExoPlayerImpl implements Player, ExoPlayer.EventListener {
     }
 
     @Override
+    public void onException(OnExceptionListener listener) {
+        this.onExceptionListener = listener;
+    }
+
+    @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
     }
 
@@ -179,6 +185,9 @@ class ExoPlayerImpl implements Player, ExoPlayer.EventListener {
 
     @Override
     public void onPlayerError(ExoPlaybackException error) {
+        if (onExceptionListener != null) {
+            onExceptionListener.onException(error);
+        }
     }
 
     @Override

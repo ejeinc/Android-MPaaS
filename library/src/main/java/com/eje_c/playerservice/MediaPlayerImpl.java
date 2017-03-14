@@ -146,4 +146,31 @@ class MediaPlayerImpl implements Player, MediaPlayer.OnPreparedListener {
             start();
         }
     }
+
+    @Override
+    public void onException(final OnExceptionListener listener) {
+
+        if (listener == null) {
+            mediaPlayer.setOnErrorListener(null);
+            return;
+        }
+
+        mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+            @Override
+            public boolean onError(MediaPlayer mp, int what, int extra) {
+                listener.onException(new MediaPlayerException(what, extra));
+                return false;
+            }
+        });
+    }
+
+    public static class MediaPlayerException extends Exception {
+        public final int what;
+        public final int extra;
+
+        MediaPlayerException(int what, int extra) {
+            this.what = what;
+            this.extra = extra;
+        }
+    }
 }

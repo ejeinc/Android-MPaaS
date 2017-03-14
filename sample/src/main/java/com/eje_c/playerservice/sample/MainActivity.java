@@ -27,10 +27,10 @@ public class MainActivity extends Activity {
 
             Player player = PlayerService.getPlayer();
             if (player != null) {
-                player.onException(new OnExceptionListener() {
+                player.setOnExceptionListener(new OnExceptionListener() {
                     @Override
                     public void onException(Exception e) {
-                        Log.e(TAG, "onException: ", e);
+                        Log.e(TAG, "setOnExceptionListener: ", e);
                     }
                 });
                 

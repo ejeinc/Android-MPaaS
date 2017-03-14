@@ -136,7 +136,7 @@ class ExoPlayerImpl implements Player, ExoPlayer.EventListener, SimpleExoPlayer.
     }
 
     @Override
-    public void onException(OnExceptionListener listener) {
+    public void setOnExceptionListener(OnExceptionListener listener) {
         this.onExceptionListener = listener;
     }
 

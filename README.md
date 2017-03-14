@@ -4,7 +4,9 @@ MediaPlayer as a Service. Simplify MediaPlayer integration.
 
 ## How to use
 
-### Import
+Add `compile 'com.eje_c:mpaas:0.0.+'` to your `build.gradle`.
+
+Or from source:
 
 1. Clone repository
 2. Open AndroidStudio

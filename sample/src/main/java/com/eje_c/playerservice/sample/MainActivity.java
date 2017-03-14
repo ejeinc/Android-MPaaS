@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.eje_c.playerservice.BufferingListener;
 import com.eje_c.playerservice.OnExceptionListener;
+import com.eje_c.playerservice.OnRenderStartListener;
 import com.eje_c.playerservice.Player;
 import com.eje_c.playerservice.PlayerService;
 
@@ -30,6 +31,13 @@ public class MainActivity extends Activity {
                     @Override
                     public void onException(Exception e) {
                         Log.e(TAG, "onException: ", e);
+                    }
+                });
+                
+                player.setOnRenderStartListener(new OnRenderStartListener() {
+                    @Override
+                    public void onStartRendering() {
+                        Log.d(TAG, "onStartRendering: ");
                     }
                 });
             }

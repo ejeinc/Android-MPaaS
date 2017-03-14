@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
-class ExoPlayerImpl implements Player, ExoPlayer.EventListener {
+class ExoPlayerImpl implements Player, ExoPlayer.EventListener, SimpleExoPlayer.VideoListener {
     private static final String TAG = "ExoPlayerImpl";
     private final SimpleExoPlayer exoPlayer;
     private final DataSource.Factory dataSourceFactory;
@@ -36,6 +36,7 @@ class ExoPlayerImpl implements Player, ExoPlayer.EventListener {
     private BufferingListener bufferingListener;
     private Runnable onEndCallback;
     private OnExceptionListener onExceptionListener;
+    private OnRenderStartListener onRenderStartListener;
 
     ExoPlayerImpl(Context context) {
 
@@ -53,6 +54,7 @@ class ExoPlayerImpl implements Player, ExoPlayer.EventListener {
         // 3. Create the player
         exoPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector, loadControl);
         exoPlayer.addListener(this);
+        exoPlayer.setVideoListener(this);
     }
 
     @Override
@@ -139,6 +141,11 @@ class ExoPlayerImpl implements Player, ExoPlayer.EventListener {
     }
 
     @Override
+    public void setOnRenderStartListener(OnRenderStartListener listener) {
+        this.onRenderStartListener = listener;
+    }
+
+    @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
     }
 
@@ -192,5 +199,16 @@ class ExoPlayerImpl implements Player, ExoPlayer.EventListener {
 
     @Override
     public void onPositionDiscontinuity() {
+    }
+
+    @Override
+    public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
+    }
+
+    @Override
+    public void onRenderedFirstFrame() {
+        if (onRenderStartListener != null) {
+            onRenderStartListener.onStartRendering();
+        }
     }
 }

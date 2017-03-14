@@ -115,4 +115,9 @@ public interface Player {
      * @param listener the callback that will be run.
      */
     void onException(OnExceptionListener listener);
+
+    /**
+     * @param listener Called when a frame is rendered for the first time since setting the surface, and when a frame is rendered for the first time since a video track was selected.
+     */
+    void setOnRenderStartListener(OnRenderStartListener listener);
 }

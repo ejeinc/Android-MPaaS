@@ -7,15 +7,19 @@ import android.view.Surface;
 
 import java.io.IOException;
 
-class MediaPlayerImpl implements Player, MediaPlayer.OnPreparedListener {
+class MediaPlayerImpl implements Player, MediaPlayer.OnPreparedListener, MediaPlayer.OnInfoListener {
     private final MediaPlayer mediaPlayer;
     private final Context context;
     private boolean playWhenReady;
     private boolean prepared;
+    private OnRenderStartListener onVideoRenderingStartListener;
+    private BufferingListener bufferingListener;
 
     MediaPlayerImpl(Context context) {
         this.mediaPlayer = new MediaPlayer();
         this.context = context;
+
+        mediaPlayer.setOnInfoListener(this);
     }
 
     @Override
@@ -119,23 +123,7 @@ class MediaPlayerImpl implements Player, MediaPlayer.OnPreparedListener {
 
     @Override
     public void setBufferingListener(final BufferingListener bufferingListener) {
-
-        MediaPlayer.OnInfoListener onInfoListener = new MediaPlayer.OnInfoListener() {
-            @Override
-            public boolean onInfo(MediaPlayer mp, int what, int extra) {
-                switch (what) {
-                    case MediaPlayer.MEDIA_INFO_BUFFERING_START:
-                        bufferingListener.onStartBuffering();
-                        break;
-                    case MediaPlayer.MEDIA_INFO_BUFFERING_END:
-                        bufferingListener.onEndBuffering();
-                        break;
-                }
-                return false;
-            }
-        };
-
-        mediaPlayer.setOnInfoListener(onInfoListener);
+        this.bufferingListener = bufferingListener;
     }
 
     @Override
@@ -162,6 +150,34 @@ class MediaPlayerImpl implements Player, MediaPlayer.OnPreparedListener {
                 return false;
             }
         });
+    }
+
+    @Override
+    public void setOnRenderStartListener(OnRenderStartListener listener) {
+        this.onVideoRenderingStartListener = listener;
+    }
+
+    @Override
+    public boolean onInfo(MediaPlayer mp, int what, int extra) {
+        switch (what) {
+            case MediaPlayer.MEDIA_INFO_BUFFERING_START:
+                if (bufferingListener != null) {
+                    bufferingListener.onStartBuffering();
+                }
+                break;
+            case MediaPlayer.MEDIA_INFO_BUFFERING_END:
+                if (bufferingListener != null) {
+                    bufferingListener.onEndBuffering();
+                }
+                break;
+
+            case MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START:
+                if (onVideoRenderingStartListener != null) {
+                    onVideoRenderingStartListener.onStartRendering();
+                }
+                break;
+        }
+        return false;
     }
 
     public static class MediaPlayerException extends Exception {

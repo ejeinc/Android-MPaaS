@@ -10,7 +10,9 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.Toast;
 
+import com.eje_c.playerservice.BufferingListener;
 import com.eje_c.playerservice.Player;
 import com.eje_c.playerservice.PlayerService;
 
@@ -51,6 +53,25 @@ public class MainActivity extends Activity {
                     player.start();
 
                     player.setSurface(surfaceView.getHolder().getSurface());
+
+                    player.onEnd(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "Ended", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                    player.setBufferingListener(new BufferingListener() {
+                        @Override
+                        public void onStartBuffering() {
+                            Log.d(TAG, "onStartBuffering: ");
+                        }
+
+                        @Override
+                        public void onEndBuffering() {
+                            Log.d(TAG, "onEndBuffering: ");
+                        }
+                    });
                 }
             }
         });

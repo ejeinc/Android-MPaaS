@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
 android {
     compileSdkVersion 25
@@ -20,4 +21,17 @@ android {
 
 dependencies {
     compile 'com.google.android.exoplayer:exoplayer:r2.2.0'
+}
+
+/*
+ * Upload to bintray
+ */
+
+publish {
+    userOrg = 'niusounds'
+    groupId = 'com.eje_c'
+    artifactId = 'mpaas'
+    publishVersion = '0.0.1'
+    desc = 'MediaPlayer as a Service'
+    website = 'https://github.com/ejeinc/Android-MPaaS'
 }

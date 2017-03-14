@@ -2,7 +2,6 @@ package com.eje_c.playerservice;
 
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 import android.view.Surface;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -28,12 +27,14 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
-class ExoPlayerImpl implements Player {
+class ExoPlayerImpl implements Player, ExoPlayer.EventListener {
     private static final String TAG = "ExoPlayerImpl";
     private final SimpleExoPlayer exoPlayer;
     private final DataSource.Factory dataSourceFactory;
     private final ExtractorsFactory extractorsFactory;
-    private ExoPlayer.EventListener bufferingEventListener;
+    private boolean buffering;
+    private BufferingListener bufferingListener;
+    private Runnable onEndCallback;
 
     ExoPlayerImpl(Context context) {
 
@@ -50,54 +51,7 @@ class ExoPlayerImpl implements Player {
 
         // 3. Create the player
         exoPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector, loadControl);
-        exoPlayer.addListener(new ExoPlayer.EventListener() {
-            @Override
-            public void onTimelineChanged(Timeline timeline, Object manifest) {
-                Log.d(TAG, "onTimelineChanged: " + timeline + " " + manifest);
-            }
-
-            @Override
-            public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-                Log.d(TAG, "onTracksChanged: " + trackGroups + " " + trackSelections);
-            }
-
-            @Override
-            public void onLoadingChanged(boolean isLoading) {
-                Log.d(TAG, "onLoadingChanged: " + isLoading);
-            }
-
-            @Override
-            public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-                //            Log.d(TAG, "onPlayerStateChanged: " + playWhenReady + " " + playbackState);
-                switch (playbackState) {
-                    case ExoPlayer.STATE_IDLE:
-                        Log.d(TAG, "onPlayerStateChanged: STATE_IDLE");
-                        break;
-
-                    case ExoPlayer.STATE_BUFFERING:
-                        Log.d(TAG, "onPlayerStateChanged: STATE_BUFFERING");
-                        break;
-
-                    case ExoPlayer.STATE_READY:
-                        Log.d(TAG, "onPlayerStateChanged: STATE_READY");
-                        break;
-
-                    case ExoPlayer.STATE_ENDED:
-                        Log.d(TAG, "onPlayerStateChanged: STATE_ENDED");
-                        break;
-                }
-            }
-
-            @Override
-            public void onPlayerError(ExoPlaybackException error) {
-                Log.d(TAG, "onPlayerError: " + error);
-            }
-
-            @Override
-            public void onPositionDiscontinuity() {
-                Log.d(TAG, "onPositionDiscontinuity: ");
-            }
-        });
+        exoPlayer.addListener(this);
     }
 
     @Override
@@ -137,38 +91,8 @@ class ExoPlayerImpl implements Player {
     }
 
     @Override
-    public void onEnd(final Runnable runnable) {
-        exoPlayer.addListener(new ExoPlayer.EventListener() {
-            @Override
-            public void onTimelineChanged(Timeline timeline, Object manifest) {
-            }
-
-            @Override
-            public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-            }
-
-            @Override
-            public void onLoadingChanged(boolean isLoading) {
-            }
-
-            @Override
-            public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-                switch (playbackState) {
-                    case ExoPlayer.STATE_ENDED:
-                        exoPlayer.removeListener(this);
-                        runnable.run();
-                        break;
-                }
-            }
-
-            @Override
-            public void onPlayerError(ExoPlaybackException error) {
-            }
-
-            @Override
-            public void onPositionDiscontinuity() {
-            }
-        });
+    public void onEnd(Runnable runnable) {
+        this.onEndCallback = runnable;
     }
 
     @Override
@@ -205,64 +129,59 @@ class ExoPlayerImpl implements Player {
 
     @Override
     public void setBufferingListener(BufferingListener bufferingListener) {
+        this.bufferingListener = bufferingListener;
+    }
 
-        // Remove previous listener
-        if (bufferingEventListener != null) {
-            exoPlayer.removeListener(bufferingEventListener);
-            bufferingListener = null;
+    @Override
+    public void onTimelineChanged(Timeline timeline, Object manifest) {
+    }
+
+    @Override
+    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+    }
+
+    @Override
+    public void onLoadingChanged(boolean isLoading) {
+    }
+
+    @Override
+    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+
+        // Not in buffering
+        if (!buffering) {
+
+            // Start now
+            if (playbackState == ExoPlayer.STATE_BUFFERING) {
+                buffering = true;
+                if (bufferingListener != null) {
+                    bufferingListener.onStartBuffering();
+                }
+            }
+
+        } else {
+            // In buffering
+
+            // End now
+            if (playbackState != ExoPlayer.STATE_BUFFERING) {
+                buffering = false;
+                if (bufferingListener != null) {
+                    bufferingListener.onEndBuffering();
+                }
+            }
         }
 
-        // Register listener if it is not null
-        if (bufferingListener != null) {
-
-            final BufferingListener finalBufferingListener = bufferingListener;
-            bufferingEventListener = new ExoPlayer.EventListener() {
-                boolean buffering;
-
-                @Override
-                public void onTimelineChanged(Timeline timeline, Object manifest) {
-                }
-
-                @Override
-                public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-                }
-
-                @Override
-                public void onLoadingChanged(boolean isLoading) {
-                }
-
-                @Override
-                public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-
-                    // Not in buffering
-                    if (!buffering) {
-
-                        // Start now
-                        if (playbackState == ExoPlayer.STATE_BUFFERING) {
-                            buffering = true;
-                            finalBufferingListener.onStartBuffering();
-                        }
-
-                    } else {
-                        // In buffering
-
-                        // End now
-                        if (playbackState != ExoPlayer.STATE_BUFFERING) {
-                            buffering = false;
-                            finalBufferingListener.onEndBuffering();
-                        }
-                    }
-                }
-
-                @Override
-                public void onPlayerError(ExoPlaybackException error) {
-                }
-
-                @Override
-                public void onPositionDiscontinuity() {
-                }
-            };
-            exoPlayer.addListener(bufferingEventListener);
+        // Call onEnd callback
+        if (onEndCallback != null && playbackState == ExoPlayer.STATE_ENDED) {
+            onEndCallback.run();
+            onEndCallback = null;
         }
+    }
+
+    @Override
+    public void onPlayerError(ExoPlaybackException error) {
+    }
+
+    @Override
+    public void onPositionDiscontinuity() {
     }
 }

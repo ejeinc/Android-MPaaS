@@ -31,7 +31,15 @@ publish {
     userOrg = 'niusounds'
     groupId = 'com.eje_c'
     artifactId = 'mpaas'
-    publishVersion = '0.0.1'
+    publishVersion = '0.0.2'
     desc = 'MediaPlayer as a Service'
     website = 'https://github.com/ejeinc/Android-MPaaS'
 }
+
+task copyDocs(type: Sync) {
+    from "$buildDir/docs/javadoc"
+    into "$rootDir/docs"
+}
+
+copyDocs.dependsOn 'releaseAndroidJavadocs'
+build.dependsOn copyDocs

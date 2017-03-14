@@ -9,6 +9,10 @@ import android.util.Log;
 
 import java.lang.ref.WeakReference;
 
+/**
+ * MediaPlayer as a Service (MPaaS).
+ * It holds single {@link Player}. It can be retrieved from {@link #getPlayer()}.
+ */
 public class PlayerService extends Service {
     public static final String EXTRA_USE_EXO_PLAYER = "use_exo_player";
     private static final String TAG = "PlayerService";

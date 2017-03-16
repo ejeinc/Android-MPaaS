@@ -17,6 +17,11 @@ allprojects {
     repositories {
         jcenter()
     }
+    tasks.withType(Javadoc) {
+        options.addStringOption('encoding', 'UTF-8')
+        options.addStringOption('windowtitle', 'MPaaS')
+        options.addStringOption('doctitle', 'MPaaS')
+    }
 }
 
 task clean(type: Delete) {
